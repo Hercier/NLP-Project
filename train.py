@@ -19,14 +19,13 @@ curdir = os.path.dirname(__file__)
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--batch-size", default=4, type=int)
-    parser.add_argument("--lr", default=1e-5, type=float)
-    parser.add_argument("--weight-decay", default=1e-3, type=float)
-    parser.add_argument("--num-epoch", default=20, type=int)
-    parser.add_argument("--save-interval", default=1, type=int)
+    parser.add_argument("--lr", default=5e-6, type=float)
+    parser.add_argument("--weight-decay", default=1e-5, type=float)
+    parser.add_argument("--num-epoch", default=50, type=int)
+    parser.add_argument("--save-interval", default=2, type=int)
     parser.add_argument("--save-dir", default=os.path.join(curdir, "models"))
     parser.add_argument('--start-epoch', default=0, type=int, metavar='N', help='start epoch')
     parser.add_argument('--print-freq', default=10, type=int, help='print frequency')
-
 
     args = parser.parse_args()
     return args
@@ -89,7 +88,7 @@ def main(args):
     print("Start training")
     for epoch in range(args.start_epoch, args.num_epoch):
         train_one_epoch(model, optimizer, data_loader_train, device, epoch, args.print_freq)
-        torch.save(model, '/home/zhuoyang/NLP-Project/' + str(epoch) +'.pth')
+        torch.save(model, '/home/zhuoyang/NLP-Project/new_model/' + str(epoch) +'.pth')
         evaluate(model, data_loader_test, device)
 
 if __name__ == "__main__":

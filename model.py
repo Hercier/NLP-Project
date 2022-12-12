@@ -57,12 +57,14 @@ class Key2Text(nn.Module):
             init_cover=[]
         candidates[len(init_cover)].append(beam_search_data([torch.Tensor([0]).to(device)],cover=init_cover,score=0))
         best=beam_search_data([0],cover=[],score=-1e10)
-        print(input_ids)
+        #print(input_ids)
         for length in range(max_length):
 
             new_list=[[] for i in range(tot_con+1)]
             for c_cnt in range(tot_con+1):
                 for data in candidates[c_cnt]:
+                    if(data.token[-1]==2):
+                        continue
                     #print(tokenizer.batch_decode(torch.LongTensor([data.token]), skip_special_tokens=True, clean_up_tokenization_spaces=False)[0])
                     ret=self.model(input_ids=input_ids,decoder_input_ids=torch.LongTensor([data.token]).to(device))
                     last_logits=ret.logits[0][-1]

@@ -83,7 +83,7 @@ class Key2TextDataset(Dataset):
         for word in splitted:
             if word.lower() not in self.stopwords:
                 distilled.append(re.sub(r'[^a-zA-Z\s]','', string=word))
-            shorten_line+=re.sub(r'[^a-zA-Z\s]','', string=word)+" "
+            shorten_line+=word+" "
         if(len(distilled)<=2):
             return None
         numbers=np.random.choice(len(distilled), min(len(distilled),5),replace=False)
