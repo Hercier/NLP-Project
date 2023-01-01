@@ -38,7 +38,10 @@ def train_one_epoch(model, optimizer, data_loader, device, epoch, print_freq):
     header = 'Epoch: [{}]'.format(epoch)
     for dic in metric_logger.log_every(data_loader, print_freq, header):
         start_time = time.time()
+        if dic['target_token'] is None or len(dic['target_token'].shape)<2:
+            continue
         input_ids, decoder_input_ids, labels = dic['key_token'], dic['target_token'][:,:-1], dic['target_token'][:,1:]
+
         input_ids, decoder_input_ids, labels = input_ids.to(device), decoder_input_ids.to(device), labels.to(device)
         loss = model.get_loss(input_ids, decoder_input_ids, labels)
         optimizer.zero_grad()
@@ -72,7 +75,7 @@ def main(args):
     dataset_train = Key2TextDataset()
     data_loader_train = DataLoader(dataset_train, collate_fn=dataset_train.collate_fn, batch_size=args.batch_size, shuffle=True, pin_memory=True)
 
-    dataset_test = Key2TextDataset(split='test')
+    dataset_test = Key2TextDataset(split='valid')
     data_loader_test = DataLoader(dataset_test, collate_fn=dataset_test.collate_fn, batch_size=args.batch_size, pin_memory=True)
 
     print("Creating model")
