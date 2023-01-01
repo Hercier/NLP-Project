@@ -91,7 +91,7 @@ def main(args):
     print("Start training")
     for epoch in range(args.start_epoch, args.num_epoch):
         train_one_epoch(model, optimizer, data_loader_train, device, epoch, args.print_freq)
-        torch.save(model, '/home/zhuoyang/NLP-Project/new_model/' + str(epoch) +'.pth')
+        # torch.save(model, '/home/zhuoyang/NLP-Project/new_model/' + str(epoch) +'.pth')
         evaluate(model, data_loader_test, device)
 
 if __name__ == "__main__":

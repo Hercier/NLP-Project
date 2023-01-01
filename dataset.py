@@ -12,6 +12,7 @@ import numpy as np
 import nltk
 import csv
 import re
+import random
 from transformers import (
     AutoModelForSeq2SeqLM,
     BartTokenizer,
@@ -47,9 +48,42 @@ class newsdata:
         self.dataset=[]
         self.filename=os.path.join("/home/zhuoyang", "news.2016.en.shuffled")
         f=open(self.filename,"r")
-        
+        bucket=[0 for x in range(2000)]
         for line in f:
             self.dataset.append({'text':line})
+            bucket[len(line.split(' '))]+=1
+        print(bucket)
+        random.seed(42)
+        random.shuffle(self.dataset)
+        self.train=int(0.7*len(self.dataset))
+        self.valid=int(0.2*len(self.dataset))
+        self.test=len(self.dataset)-self.train-self.valid
+        self.train=self.train//300
+        self.valid=self.valid//300
+        self.test=self.test//300
+    def __call__(self,split):
+        if split=='train':
+            return self.dataset[:self.train]
+        if split=='valid':
+            return self.dataset[self.train:self.train+self.valid]
+        if split=='test':
+            return self.dataset[self.train+self.valid:self.train+self.valid+self.test]
+class jokedata:
+    def __init__(self):
+        self.dataset=[]
+        self.filename=os.path.join("/home/zhuoyang", "reddit_jokes.json")
+        f=open(self.filename,"r")
+        self.data=json.load(f)
+        self.dataset=[]
+        for line in self.data:
+            res=line["title"]+' '+line["body"]
+            length=len(res.split(' '))
+            if length>=5 and length<=50:
+                self.dataset.append({"text":res})
+                #print(res)
+        print(len(self.dataset))
+        random.seed(42)
+        random.shuffle(self.dataset)
         self.train=int(0.7*len(self.dataset))
         self.valid=int(0.2*len(self.dataset))
         self.test=len(self.dataset)-self.train-self.valid
@@ -64,7 +98,7 @@ class newsdata:
         if split=='test':
             return self.dataset[self.train+self.valid:self.train+self.valid+self.test]
             
-yelp=yelpdata()
+yelp=jokedata()
 class Key2TextDataset(Dataset):
     def __init__(self,
                  split="train",datacaller=yelp):
@@ -131,17 +165,17 @@ class Key2TextDataset(Dataset):
         return {"target_token":line_token,"target_attention_mask":line_mask,"key_token":key_token,"key_attention_mask":key_mask}
         
 def main():
-    a="she she, She SHE she shE she."
-    print(tokenizer(a))
-    print(tokenizer("She she, she she she she she."))
-    print(tokenizer("she she she."))
-    print(tokenizer("me me me."))
+    # a="she she, She SHE she shE she."
+    # print(tokenizer(a))
+    # print(tokenizer("She she, she she she she she."))
+    # print(tokenizer("she she she."))
+    # print(tokenizer("me me me."))
 
-    return 0
+    # return 0
     train=Key2TextDataset()
-    trainloader=DataLoader(train,batch_size=3,collate_fn=train.collate_fn,shuffle=True, pin_memory=True, num_workers=1)
-    for i in range(4):
-        print(train[i])
+    trainloader=DataLoader(train,batch_size=3,collate_fn=train.collate_fn,shuffle=True, pin_memory=False, num_workers=1)
+    # for i in range(4):
+    #     print(train[i])
     for i,batch in zip(range(4),trainloader):
         print(batch)
 
