@@ -38,6 +38,7 @@ def train_one_epoch(model, optimizer, data_loader, device, epoch, print_freq):
     header = 'Epoch: [{}]'.format(epoch)
     for dic in metric_logger.log_every(data_loader, print_freq, header):
         start_time = time.time()
+        #print(dic)
         if dic['target_token'] is None or len(dic['target_token'].shape)<2:
             continue
         input_ids, decoder_input_ids, labels = dic['key_token'], dic['target_token'][:,:-1], dic['target_token'][:,1:]
@@ -91,7 +92,8 @@ def main(args):
     print("Start training")
     for epoch in range(args.start_epoch, args.num_epoch):
         train_one_epoch(model, optimizer, data_loader_train, device, epoch, args.print_freq)
-        torch.save(model, '/home/zhuoyang/NLP-Project/new_model/' + str(epoch) +'.pth')
+        #torch.save(model, '/home/zhuoyang/NLP-Project/new_model/' + str(epoch) +'.pth')
+        torch.save(model, '/home/zhuoyang/shizhong/NLP-Project/new_model/' + str(epoch) +'.pth')
         evaluate(model, data_loader_test, device)
 
 if __name__ == "__main__":

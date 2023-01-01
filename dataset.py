@@ -12,6 +12,7 @@ import numpy as np
 import nltk
 import csv
 import re
+import random
 from transformers import (
     AutoModelForSeq2SeqLM,
     BartTokenizer,
@@ -47,15 +48,18 @@ class newsdata:
         self.dataset=[]
         self.filename=os.path.join("/home/zhuoyang", "news.2016.en.shuffled")
         f=open(self.filename,"r")
-        
         for line in f:
-            self.dataset.append({'text':line})
+            length=len(line.split(' '))
+            if length>=5 or length<=100:
+                self.dataset.append({'text':line})
+        random.seed(40)
+        random.shuffle(self.dataset)
         self.train=int(0.7*len(self.dataset))
         self.valid=int(0.2*len(self.dataset))
         self.test=len(self.dataset)-self.train-self.valid
-        self.train=self.train//300
-        self.valid=self.valid//300
-        self.test=self.test//300
+        self.train=self.train//20
+        self.valid=self.valid//20
+        self.test=self.test//20
     def __call__(self,split):
         if split=='train':
             return self.dataset[:self.train]
@@ -64,7 +68,7 @@ class newsdata:
         if split=='test':
             return self.dataset[self.train+self.valid:self.train+self.valid+self.test]
             
-yelp=yelpdata()
+yelp=newsdata()
 class Key2TextDataset(Dataset):
     def __init__(self,
                  split="train",datacaller=yelp):
@@ -100,10 +104,10 @@ class Key2TextDataset(Dataset):
                     tgt_batch.append(torch.cat((torch.LongTensor(item['target_token']),torch.ones(max_len-len(item['target_token']),dtype=torch.int32)),dim=-1).unsqueeze(0))
                     key_att_batch.append(torch.cat((torch.Tensor(item['key_attention_mask']),torch.zeros(max_key_len-len(item['key_attention_mask']))),dim=-1).unsqueeze(0))
                     tgt_att_batch.append(torch.cat((torch.Tensor(item['target_attention_mask']),torch.zeros(max_len-len(item['target_attention_mask']))),dim=-1).unsqueeze(0))
-            key_batch=torch.cat(key_batch,dim=0)
-            key_att_batch=torch.cat(key_att_batch,dim=0)
-            tgt_batch=torch.cat(tgt_batch,dim=0)
-            tgt_att_batch=torch.cat(tgt_att_batch,dim=0)
+        key_batch=torch.cat(key_batch,dim=0)
+        key_att_batch=torch.cat(key_att_batch,dim=0)
+        tgt_batch=torch.cat(tgt_batch,dim=0)
+        tgt_att_batch=torch.cat(tgt_att_batch,dim=0)
         return {'target_token':tgt_batch,'target_attention_mask':tgt_att_batch,'key_token':key_batch,'key_attention_mask':key_att_batch}
 
     def __getitem__(self, index):
