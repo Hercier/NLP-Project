@@ -89,7 +89,7 @@ class Key2TextDataset(Dataset):
         numbers=np.random.choice(len(distilled), min(len(distilled),5),replace=False)
         key=""
         for i in numbers:
-            key+=distilled[i]+" "
+            key+=" "+distilled[i]
         token=tokenizer(shorten_line)
         line_token,line_mask=token['input_ids'],token['attention_mask']
         token=tokenizer(key)
