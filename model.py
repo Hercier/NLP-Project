@@ -57,7 +57,7 @@ class Key2Text(nn.Module):
             init_cover=[]
         candidates[len(init_cover)].append(beam_search_data([torch.Tensor([0]).to(device)],cover=init_cover,score=0))
         best=beam_search_data([0],cover=[],score=-1e10)
-        print(input_ids)
+        #print(input_ids)
         for length in range(max_length):
 
             new_list=[[] for i in range(tot_con+1)]
@@ -65,7 +65,7 @@ class Key2Text(nn.Module):
                 for data in candidates[c_cnt]:
                     if(data.token[-1]==2):
                         continue
-                    print(tokenizer.batch_decode(torch.LongTensor([data.token]), skip_special_tokens=True, clean_up_tokenization_spaces=False)[0])
+                    #print(tokenizer.batch_decode(torch.LongTensor([data.token]), skip_special_tokens=True, clean_up_tokenization_spaces=False)[0])
                     ret=self.model(input_ids=input_ids,decoder_input_ids=torch.LongTensor([data.token]).to(device))
                     #print(ret.logits.shape)
                     last_logits=ret.logits[0][-1]
@@ -78,18 +78,18 @@ class Key2Text(nn.Module):
                         for k_ind in data.not_in(tot_con):# satisfy new constrain
                             new_data=beam_search_data(data.token+[input_ids[0][k_ind]],data.cover+[k_ind],data.score+last_logits[input_ids[0][k_ind]])
                             new_list[c_cnt+1].append(new_data)
-                            print(tokenizer.batch_decode(torch.LongTensor([data.token+[input_ids[0][k_ind]]]), skip_special_tokens=True, clean_up_tokenization_spaces=False)[0])
+                            #print(tokenizer.batch_decode(torch.LongTensor([data.token+[input_ids[0][k_ind]]]), skip_special_tokens=True, clean_up_tokenization_spaces=False)[0])
 
                     newchars=torch.argsort(last_logits)[-beam_size:]
                     for char in newchars:
                         new_data=beam_search_data(data.token+[char],data.cover,data.score+last_logits[char])
-                        print(tokenizer.batch_decode(torch.LongTensor([data.token+[char]]), skip_special_tokens=True, clean_up_tokenization_spaces=False)[0])
+                        #print(tokenizer.batch_decode(torch.LongTensor([data.token+[char]]), skip_special_tokens=True, clean_up_tokenization_spaces=False)[0])
                         new_list[c_cnt].append(new_data)
                 if len(new_list[c_cnt])>beam_size:
                     new_list[c_cnt]=sorted(new_list[c_cnt],
                     key=cmp_to_key(lambda a,b: b.score-a.score))[:beam_size]
             candidates=new_list
-        print(tokenizer.batch_decode(torch.LongTensor([new_list[1][0].token]), skip_special_tokens=True, clean_up_tokenization_spaces=False)[0])
+        #print(tokenizer.batch_decode(torch.LongTensor([new_list[1][0].token]), skip_special_tokens=True, clean_up_tokenization_spaces=False)[0])
         #print(new_list[1][0].token)
         if best.score<-1e9:
             best=new_list[tot_con][0]

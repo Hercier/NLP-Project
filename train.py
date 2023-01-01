@@ -20,7 +20,7 @@ def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--batch-size", default=4, type=int)
     parser.add_argument("--lr", default=1e-5, type=float)
-    parser.add_argument("--weight-decay", default=1e-3, type=float)
+    parser.add_argument("--weight-decay", default=1e-5, type=float)
     parser.add_argument("--num-epoch", default=20, type=int)
     parser.add_argument("--save-interval", default=1, type=int)
     parser.add_argument("--save-dir", default=os.path.join(curdir, "models"))
@@ -39,7 +39,10 @@ def train_one_epoch(model, optimizer, data_loader, device, epoch, print_freq):
     header = 'Epoch: [{}]'.format(epoch)
     for dic in metric_logger.log_every(data_loader, print_freq, header):
         start_time = time.time()
+        if dic['target_token'] is None or len(dic['target_token'].shape)<2:
+            continue
         input_ids, decoder_input_ids, labels = dic['key_token'], dic['target_token'][:,:-1], dic['target_token'][:,1:]
+
         input_ids, decoder_input_ids, labels = input_ids.to(device), decoder_input_ids.to(device), labels.to(device)
         loss = model.get_loss(input_ids, decoder_input_ids, labels)
         optimizer.zero_grad()
@@ -73,7 +76,7 @@ def main(args):
     dataset_train = Key2TextDataset()
     data_loader_train = DataLoader(dataset_train, collate_fn=dataset_train.collate_fn, batch_size=args.batch_size, shuffle=True, pin_memory=True)
 
-    dataset_test = Key2TextDataset(split='test')
+    dataset_test = Key2TextDataset(split='valid')
     data_loader_test = DataLoader(dataset_test, collate_fn=dataset_test.collate_fn, batch_size=args.batch_size, pin_memory=True)
 
     print("Creating model")
@@ -89,7 +92,7 @@ def main(args):
     print("Start training")
     for epoch in range(args.start_epoch, args.num_epoch):
         train_one_epoch(model, optimizer, data_loader_train, device, epoch, args.print_freq)
-        torch.save(model, '/home/zhuoyang/NLP-Project/' + str(epoch) +'.pth')
+        torch.save(model, '/home/zhuoyang/shizhong/NLP-Project/' + str(epoch) +'.pth')
         evaluate(model, data_loader_test, device)
 
 if __name__ == "__main__":
