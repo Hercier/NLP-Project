@@ -68,7 +68,7 @@ class newsdata:
         if split=='test':
             return self.dataset[self.train+self.valid:self.train+self.valid+self.test]
 
-            
+
 class jokedata:
     def __init__(self):
         self.dataset=[]
@@ -88,9 +88,9 @@ class jokedata:
         self.train=int(0.7*len(self.dataset))
         self.valid=int(0.2*len(self.dataset))
         self.test=len(self.dataset)-self.train-self.valid
-        self.train=self.train//20
-        self.valid=self.valid//20
-        self.test=self.test//20
+        self.train=self.train
+        self.valid=self.valid
+        self.test=self.test
     def __call__(self,split):
         if split=='train':
             return self.dataset[:self.train]
@@ -143,6 +143,7 @@ class Key2TextDataset(Dataset):
 
     def __getitem__(self, index):
         line=self.dataset[index]['text'].replace('\\n',' ')
+        line=self.dataset[index]['text'].replace('\n',' ')
         splitted=line.split(' ')
         distilled=[]
         shorten_line=""
