@@ -135,19 +135,19 @@ class Key2TextDataset(Dataset):
         return {"target_token":line_token,"target_attention_mask":line_mask,"key_token":key_token,"key_attention_mask":key_mask}
         
 def main():
-    a="she she, She SHE she shE she."
-    print(tokenizer(a))
-    print(tokenizer("She she, she she she she she."))
-    print(tokenizer("she she she."))
-    print(tokenizer("me me me."))
+    # a="she she, She SHE she shE she."
+    # print(tokenizer(a))
+    # print(tokenizer("She she, she she she she she."))
+    # print(tokenizer("she she she."))
+    # print(tokenizer("me me me."))
 
-    return 0
+    # return 0
     train=Key2TextDataset()
     trainloader=DataLoader(train,batch_size=3,collate_fn=train.collate_fn,shuffle=True, pin_memory=True, num_workers=1)
-    for i in range(4):
+    for i in range(40,50):
         print(train[i])
-    for i,batch in zip(range(4),trainloader):
-        print(batch)
+    # for i,batch in zip(range(4),trainloader):
+    #     print(batch)
 
 
 

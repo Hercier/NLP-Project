@@ -18,9 +18,9 @@ curdir = os.path.dirname(__file__)
 
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--batch-size", default=4, type=int)
-    parser.add_argument("--lr", default=5e-6, type=float)
-    parser.add_argument("--weight-decay", default=1e-5, type=float)
+    parser.add_argument("--batch-size", default=12, type=int)
+    parser.add_argument("--lr", default=1e-6, type=float)
+    parser.add_argument("--weight-decay", default=1e-10, type=float)
     parser.add_argument("--num-epoch", default=50, type=int)
     parser.add_argument("--save-interval", default=2, type=int)
     parser.add_argument("--save-dir", default=os.path.join(curdir, "models"))
@@ -93,7 +93,7 @@ def main(args):
     for epoch in range(args.start_epoch, args.num_epoch):
         train_one_epoch(model, optimizer, data_loader_train, device, epoch, args.print_freq)
         #torch.save(model, '/home/zhuoyang/NLP-Project/new_model/' + str(epoch) +'.pth')
-        torch.save(model, '/home/zhuoyang/shizhong/NLP-Project/new_model/' + str(epoch) +'.pth')
+        torch.save(model, '/home/zhuoyang/shizhong/NLP-Project/23.1.2_v2/' + str(epoch) +'.pth')
         evaluate(model, data_loader_test, device)
 
 if __name__ == "__main__":

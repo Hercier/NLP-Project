@@ -63,17 +63,18 @@ class Key2Text(nn.Module):
             new_list=[[] for i in range(tot_con+1)]
             for c_cnt in range(tot_con+1):
                 for data in candidates[c_cnt]:
+                    if(c_cnt==tot_con  and (data.score)/(length+1)>best.score and length>=min_length):
+                        #print(torch.LongTensor([data.token]).to(device))
+                        best=beam_search_data(data.token,cover=[],score=(data.score)/(length+1))
                     if(data.token[-1]==2):
                         continue
                     #print(tokenizer.batch_decode(torch.LongTensor([data.token]), skip_special_tokens=True, clean_up_tokenization_spaces=False)[0])
+                    #print(data.cover)
                     ret=self.model(input_ids=input_ids,decoder_input_ids=torch.LongTensor([data.token]).to(device))
                     #print(ret.logits.shape)
                     last_logits=ret.logits[0][-1]
                     last_logits=F.log_softmax(last_logits, dim=-1)
                     #print(last_logits)
-                    if(c_cnt==tot_con  and (data.score)/(length+1)>best.score and length>=min_length):
-                        #print(torch.LongTensor([data.token]).to(device))
-                        best=beam_search_data(data.token,cover=[],score=(data.score)/(length+1))
                     if data.not_completed(tot_con):
                         for k_ind in data.not_in(tot_con):# satisfy new constrain
                             new_data=beam_search_data(data.token+[input_ids[0][k_ind]],data.cover+[k_ind],data.score+last_logits[input_ids[0][k_ind]])
