@@ -79,27 +79,30 @@ class Key2Text(nn.Module):
                         for k_ind in data.not_in(tot_con):# satisfy new constrain
                             new_data=beam_search_data(data.token+[input_ids[0][k_ind]],data.cover+[k_ind],data.score+last_logits[input_ids[0][k_ind]])
                             new_list[c_cnt+1].append(new_data)
-                            #print(tokenizer.batch_decode(torch.LongTensor([data.token+[input_ids[0][k_ind]]]), skip_special_tokens=True, clean_up_tokenization_spaces=False)[0])
+                            print(tokenizer.batch_decode(torch.LongTensor([data.token+[input_ids[0][k_ind]]]), skip_special_tokens=True, clean_up_tokenization_spaces=False)[0])
 
                     newchars=torch.argsort(last_logits)[-beam_size:]
                     for char in newchars:
-                        new_data=beam_search_data(data.token+[char],data.cover,data.score+last_logits[char])
-                        #print(tokenizer.batch_decode(torch.LongTensor([data.token+[char]]), skip_special_tokens=True, clean_up_tokenization_spaces=False)[0])
-                        new_list[c_cnt].append(new_data)
+                        if char not in input_ids[0]:
+                            new_data=beam_search_data(data.token+[char],data.cover,data.score+last_logits[char])
+                            new_list[c_cnt].append(new_data)
+                        print(tokenizer.batch_decode(torch.LongTensor([data.token+[char]]), skip_special_tokens=True, clean_up_tokenization_spaces=False)[0])
+                        #print(data.token+[char])
                 if len(new_list[c_cnt])>beam_size:
                     new_list[c_cnt]=sorted(new_list[c_cnt],
                     key=cmp_to_key(lambda a,b: b.score-a.score))[:beam_size]
             candidates=new_list
-        #print(tokenizer.batch_decode(torch.LongTensor([new_list[1][0].token]), skip_special_tokens=True, clean_up_tokenization_spaces=False)[0])
+        print(tokenizer.batch_decode(torch.LongTensor([new_list[1][0].token]), skip_special_tokens=True, clean_up_tokenization_spaces=False)[0])
         #print(new_list[1][0].token)
         if best.score<-1e9:
             best=new_list[tot_con][0]
         return torch.LongTensor([best.token]).to(device)
 if __name__ == "__main__":
     model = Key2Text()
-    inputs = torch.tensor([[1,2,3,4,5],[2,3,4,5,6]])
-    decoder_inputs = torch.tensor([[1,2,3,4,5,6,7,8],[2,3,4,5,6,7,8,9]])
-    logits = model.logits(inputs, decoder_inputs)
-    print(logits.shape)
+    # inputs = torch.tensor([[1,2,3,4,5],[2,3,4,5,6]])
+    # decoder_inputs = torch.tensor([[1,2,3,4,5,6,7,8],[2,3,4,5,6,7,8,9]])
+    # logits = model.logits(inputs, decoder_inputs)
+    # print(logits.shape)
+    torch.save(model, '/home/zhuoyang/NLP-Project/bart_model.pth')
 
 

@@ -18,9 +18,15 @@ curdir = os.path.dirname(__file__)
 
 def get_args():
     parser = argparse.ArgumentParser()
+<<<<<<< HEAD
     parser.add_argument("--batch-size", default=12, type=int)
     parser.add_argument("--lr", default=1e-6, type=float)
     parser.add_argument("--weight-decay", default=1e-10, type=float)
+=======
+    parser.add_argument("--batch-size", default=8, type=int)
+    parser.add_argument("--lr", default=5e-6, type=float)
+    parser.add_argument("--weight-decay", default=1e-5, type=float)
+>>>>>>> 9bbf9bb463bf71351078a26111eb517fa4d7244c
     parser.add_argument("--num-epoch", default=50, type=int)
     parser.add_argument("--save-interval", default=2, type=int)
     parser.add_argument("--save-dir", default=os.path.join(curdir, "models"))

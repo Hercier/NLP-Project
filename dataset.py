@@ -67,6 +67,37 @@ class newsdata:
             return self.dataset[self.train:self.train+self.valid]
         if split=='test':
             return self.dataset[self.train+self.valid:self.train+self.valid+self.test]
+
+
+class jokedata:
+    def __init__(self):
+        self.dataset=[]
+        self.filename=os.path.join("/home/zhuoyang", "reddit_jokes.json")
+        f=open(self.filename,"r")
+        self.data=json.load(f)
+        self.dataset=[]
+        for line in self.data:
+            res=line["title"]+' '+line["body"]
+            length=len(res.split(' '))
+            if length>=5 and length<=50:
+                self.dataset.append({"text":res})
+                #print(res)
+        print(len(self.dataset))
+        random.seed(42)
+        random.shuffle(self.dataset)
+        self.train=int(0.7*len(self.dataset))
+        self.valid=int(0.2*len(self.dataset))
+        self.test=len(self.dataset)-self.train-self.valid
+        self.train=self.train
+        self.valid=self.valid
+        self.test=self.test
+    def __call__(self,split):
+        if split=='train':
+            return self.dataset[:self.train]
+        if split=='valid':
+            return self.dataset[self.train:self.train+self.valid]
+        if split=='test':
+            return self.dataset[self.train+self.valid:self.train+self.valid+self.test]
             
 yelp=newsdata()
 class Key2TextDataset(Dataset):
@@ -112,6 +143,7 @@ class Key2TextDataset(Dataset):
 
     def __getitem__(self, index):
         line=self.dataset[index]['text'].replace('\\n',' ')
+        line=self.dataset[index]['text'].replace('\n',' ')
         splitted=line.split(' ')
         distilled=[]
         shorten_line=""
@@ -143,11 +175,11 @@ def main():
 
     # return 0
     train=Key2TextDataset()
-    trainloader=DataLoader(train,batch_size=3,collate_fn=train.collate_fn,shuffle=True, pin_memory=True, num_workers=1)
-    for i in range(40,50):
-        print(train[i])
-    # for i,batch in zip(range(4),trainloader):
-    #     print(batch)
+    trainloader=DataLoader(train,batch_size=3,collate_fn=train.collate_fn,shuffle=True, pin_memory=False, num_workers=1)
+    # for i in range(4):
+    #     print(train[i])
+    for i,batch in zip(range(4),trainloader):
+        print(batch)
 
 
 
